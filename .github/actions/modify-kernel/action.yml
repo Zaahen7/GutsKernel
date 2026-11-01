@@ -647,7 +647,7 @@ runs:
 
         # Create information file
         cat > "$INFO_FILE" <<EOF
-        ==========  KERNEL INFO  ==========
+        ======  KERNEL INFO  ======
         Device: $DEVICE_MODEL
         Kernel Version: $KERNEL_VERSION
         Build Date: $BUILD_DATE
@@ -662,7 +662,7 @@ runs:
 
         cat >> "$INFO_FILE" <<EOF
 
-        =====  MODIFICATIONS APPLIED  =====
+        ===  MODIFICATIONS APPLIED  ===
         Samsung Securities: $SECURITIES_STATUS
         SUSFS: $SUSFS_STATUS
         Optimization Patches: $KPATCHES_STATUS
@@ -672,7 +672,7 @@ runs:
         VFS Support: $VFS_SUPPORT
         EXPERIMENTAL Battery Tweak: $BTWEAK_STATUS
 
-        ===========  GIT HASHES  ===========
+        ========  GIT HASHES  ========
         EOF
 
         # Add available Git hashes
