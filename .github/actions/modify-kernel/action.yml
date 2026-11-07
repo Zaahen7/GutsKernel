@@ -285,7 +285,7 @@ runs:
         # SUSFS commit for latest stable KernelSU from tiann
         KSU_SUSFS_STABLECOMMIT: "bd27d727b27fc90bfbb6eaccd28060a53c473266"
         # custom SUSFS commit, overrides stable commit too
-        CUSTOM_SUSFS_COMMIT: "1046449aef569550bd0d6f824f548377aae573a4"
+        CUSTOM_SUSFS_COMMIT: ""
       run: |
         set -euo pipefail
         source "$GITHUB_ACTION_PATH/latest-commit-hash.sh" # loads latest_commit function
