@@ -283,7 +283,7 @@ runs:
         SUSFS_REPO: "https://gitlab.com/simonpunk/susfs4ksu"
         SUSFS_BRANCH: "gki-android13-5.15"
         # SUSFS commit for latest stable KernelSU from tiann
-        KSU_SUSFS_STABLECOMMIT: "bd27d727b27fc90bfbb6eaccd28060a53c473266"
+        KSU_SUSFS_STABLECOMMIT: "ae1babc2cddeee809a0d0952ae09dae82a73e456"
         # custom SUSFS commit, overrides stable commit too
         CUSTOM_SUSFS_COMMIT: ""
       run: |
