@@ -72,6 +72,8 @@ runs:
         KSUN_SUSFS_REPO: "https://github.com/pershoot/KernelSU-Next"
         BAKASU_REPO: "https://github.com/Baka-SU/BakaSU"
         FINASU_REPO: "https://github.com/LyraVoid/FinaSU"
+        # Custom KernelSU(tiann) commit
+        CUSTOM_KSU_COMMIT: "019a3c0103a8f8d56675546016c4073d0fd18352"
       run: | 
         set -euo pipefail
         source "$GITHUB_ACTION_PATH/latest-commit-hash.sh" # loads latest_commit function
@@ -91,8 +93,13 @@ runs:
             git stash
             git pull
             
-            KSU_TAG=$(git describe --abbrev=0 --tags)
-            KSU_SHA=$(git rev-list -n 1 "$KSU_TAG")
+            if [ -n "$CUSTOM_KSU_COMMIT" ]; then
+                SUSFS_SHA="$CUSTOM_SUSFS_COMMIT"
+                echo "Using custom SUSFS commit: $SUSFS_SHA"
+            else
+                KSU_TAG=$(git describe --abbrev=0 --tags)
+                KSU_SHA=$(git rev-list -n 1 "$KSU_TAG")
+            fi
             git checkout "$KSU_SHA"
 
             # Create drivers symbolic link
