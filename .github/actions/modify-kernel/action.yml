@@ -94,8 +94,8 @@ runs:
             git pull
             
             if [ -n "$CUSTOM_KSU_COMMIT" ]; then
-                SUSFS_SHA="$CUSTOM_SUSFS_COMMIT"
-                echo "Using custom SUSFS commit: $SUSFS_SHA"
+                KSU_SHA="$CUSTOM_KSU_COMMIT"
+                echo "Using custom KSU commit: $CUSTOM_KSU_COMMIT"
             else
                 KSU_TAG=$(git describe --abbrev=0 --tags)
                 KSU_SHA=$(git rev-list -n 1 "$KSU_TAG")
