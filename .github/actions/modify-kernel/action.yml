@@ -635,14 +635,12 @@ runs:
           BAKASU) KSU_VARIANT="BakaSU" ;;
           FINASU) KSU_VARIANT="FinaSU" ;;
           *)
-            echo "::error::Unknown KernelSU variant: $VARIANT"
+            echo "::error::Unknown variant: $VARIANT"
             exit 1
             ;;
         esac
 
-        # Get KernelSU version dynamically
-        KSU_VERSION=""
-        
+        # Get KernelSU version dynamically 
         if [[ "$VARIANT" != "CLEAN" ]]; then
             VERSION_VAR="${VARIANT}_VERSION"
             KSU_VERSION="${!VERSION_VAR:-}"
