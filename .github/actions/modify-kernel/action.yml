@@ -348,6 +348,12 @@ runs:
         echo "::group::Adjusting SUSFS patch for kernel compatibility..."
         python3 "$GITHUB_ACTION_PATH/susfs-fix.py"
         echo "::endgroup::"
+
+        if [ "${{ inputs['kernel-variant'] }}" == 'FINASU' ]; then
+          echo "::group::FinaSU: pre-patch verification and normalization"
+          bash "$GITHUB_ACTION_PATH/finasu-susfs-fix.sh" pre
+          echo "::endgroup::"
+        fi
         
         PATCH_STATUS=0
         patch -p1 < "50_add_susfs_in_gki-android13-5.15.patch" || PATCH_STATUS=$?
@@ -362,7 +368,15 @@ runs:
             exit 1
         fi
 
-        if "$KERNEL_DIR/scripts/config" --file "$DEFCONFIG" --enable CONFIG_KSU_SUSFS; then
+        if [ "${{ inputs['kernel-variant'] }}" == 'FINASU' ]; then
+            echo "::group::FinaSU: post-patch fixes"
+            bash "$GITHUB_ACTION_PATH/finasu-susfs-fix.sh" post
+            echo "::endgroup::"
+
+            echo "::group::FinaSU: SUSFS configuration"
+            bash "$GITHUB_ACTION_PATH/finasu-susfs-fix.sh" config
+            echo "::endgroup::"
+        elif "$KERNEL_DIR/scripts/config" --file "$DEFCONFIG" --enable CONFIG_KSU_SUSFS; then
             echo "✅ Enabled CONFIG_KSU_SUSFS"
         else
             echo "❌ Failed: CONFIG_KSU_SUSFS"
