@@ -47,7 +47,7 @@ runs:
       shell: bash
       run: |
         echo "Workflow stopped intentionally."
-        exit 0
+        exit 1
         
     - name: Build kernel
       shell: bash
