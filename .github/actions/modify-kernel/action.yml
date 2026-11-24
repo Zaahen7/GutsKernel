@@ -722,5 +722,12 @@ runs:
             fi
         done
 
+        cat >> "$INFO_FILE" <<EOF
+
+        ========  INFO  ========
+        GutsKernel repo: https://github.com/Zaahen7/GutsKernel
+        GutsModule repo: https://github.com/Zaahen7/GutsModule
+        EOF
+        
         cat "$INFO_FILE"
         echo "✅ Kernel information saved to $INFO_FILE"
