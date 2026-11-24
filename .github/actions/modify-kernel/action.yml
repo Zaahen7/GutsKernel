@@ -672,6 +672,9 @@ runs:
         VFS_SUPPORT="Disabled"
         [[ "$VARIANT" != "CLEAN" && "${{ inputs['vfs-support'] }}" != "Disabled" ]] && VFS_SUPPORT="${{ inputs['vfs-support'] }}"
 
+        EXT_TMPFS_STATUS="Disabled"
+        [[ "${{ inputs['extended-tmpfs'] }}" == "true" ]] && EXT_TMPFS_STATUS="YES"
+
         # Create information file
         cat > "$INFO_FILE" <<EOF
         ======  KERNEL INFO  ======
@@ -696,6 +699,7 @@ runs:
         Baseband Guard: $BBG_STATUS
         More Net Schedulers: $NETSCHED_STATUS
         BBRv3 & BBR: $BBRV3_STATUS
+        Extended TMPFS: $EXT_TMPFS_STATUS
         VFS Support: $VFS_SUPPORT
         EXPERIMENTAL Battery Tweak: $BTWEAK_STATUS
 
