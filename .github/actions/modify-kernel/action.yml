@@ -121,12 +121,14 @@ runs:
           KSUN)
             if [ "${{ inputs['enable-susfs'] }}" == 'true' ]; then
                 KSUN_REPO_URL="$KSUN_SUSFS_REPO"
+                KSUN_BRANCH="dev-susfs"
             else
                 KSUN_REPO_URL="$KSUN_REPO"
+                KSUN_BRANCH="dev"
             fi
         
             # Get latest commit SHA
-            KSUN_SHA=$(latest_commit "$KSUN_REPO_URL" "dev") || exit 1
+            KSUN_SHA=$(latest_commit "$KSUN_REPO_URL" "$KSUN_BRANCH") || exit 1
         
             # Clone repository
             if [ ! -d "$KERNEL_DIR/KernelSU-Next" ]; then
