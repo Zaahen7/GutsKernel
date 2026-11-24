@@ -45,6 +45,9 @@ on:
           type: choice
           options:
             - 8.5
+            - 8
+            - 7
+            - 6.1
           default: "8.5"
           
         lto-mode:
