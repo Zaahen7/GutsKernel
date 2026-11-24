@@ -210,7 +210,6 @@ def main():
     edits = PROFILES[args.oneui]
     if not edits:
         print(f"[WARN] Profile '{args.oneui}' has no edits defined yet.")
-        sys.exit(1)
 
     print(f"== Applying profile {args.oneui} to {args.patch} ==")
     for old, new in edits:
