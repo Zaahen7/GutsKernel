@@ -129,7 +129,33 @@ PROFILES = {
 
     # ---------------- One UI 7 ----------------
     "oneui7": [
-        # EDITSSS
+        # --- fs/exec.c ---
+        # Hunk #1
+        ("#include <linux/vmalloc.h>\n #include <linux/io_uring.h>",
+         "#include <linux/io_uring.h>"),
+        ("#include <linux/syscall_user_dispatch.h>",
+         "#include <linux/syscall_user_dispatch.h>\n #include <linux/task_integrity.h>"),
+        
+        # --- fs/namespace.c ---
+        # Hunk #1
+        ("@@ -32,11 +32,21 @@",
+         "@@ -32,10 +32,20 @@"),
+        ("#include <linux/fs_context.h>\n #include <linux/shmem_fs.h>\n #include <linux/mnt_idmapping.h>",
+         "#ifdef CONFIG_KDP_NS\n #include <linux/kdp.h>\n #endif"),
+        ('#include "internal.h"\n #include <trace/hooks/blk.h>',
+         '#include "internal.h"'),
+
+        # --- fs/proc/base.c ---
+        # Hunk #1
+        ("#include <linux/resctrl.h>\n #include <linux/cn_proc.h>\n #include <linux/cpufreq_times.h>",
+         "#include <linux/proca.h>\n #include <linux/cpufreq_times.h>\n #include <linux/cn_proc.h>"),
+
+        # --- fs/proc/task_mmu.c ---
+        # Hunk #1
+        ("#include <linux/pkeys.h>\n #include <trace/hooks/mm.h>",
+         "#include <linux/pkeys.h>"),
+        ("#include <asm/tlb.h>",
+         "#include <asm/tlb.h>\n #include <asm/tlbflush.h>"),
     ],
 
     # ---------------- One UI 6.1 ----------------
