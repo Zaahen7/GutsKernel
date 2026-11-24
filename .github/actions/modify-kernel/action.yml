@@ -279,7 +279,8 @@ runs:
         
         KSU_COMMIT_COUNT=$(git -C "$KSU_DIR" rev-list --count HEAD)
         KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT))
-        
+
+        echo "${{ inputs['kernel-variant'] }}_VERSION=$KSU_VERSION"
         echo "${{ inputs['kernel-variant'] }}_VERSION=$KSU_VERSION" >> "$GITHUB_ENV"
         
     - name: Enable SUSFS
