@@ -144,6 +144,18 @@ PROFILES = {
          "#ifdef CONFIG_KDP_NS\n #include <linux/kdp.h>\n #endif"),
         ('#include "internal.h"\n #include <trace/hooks/blk.h>',
          '#include "internal.h"'),
+        # Hunk #9
+        ("struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,",
+         "/* First pass: copy the tree topology */"),
+        (
+            "\tnew = copy_tree(old, old->mnt.mnt_root, copy_flags);\n"
+            " \tif (IS_ERR(new)) {\n"
+            " \t\tnamespace_unlock();"
+        ,
+            "#ifdef CONFIG_KDP_NS\n"
+            " \tnew = copy_tree(old, ((struct kdp_mount *)old)->mnt->mnt_root, copy_flags);\n"
+            " #else"
+        ),
 
         # --- fs/proc/base.c ---
         # Hunk #1
