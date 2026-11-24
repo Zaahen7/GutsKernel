@@ -66,6 +66,10 @@ def edit(path, old, new):
 # Each profile is an ordered list of (old, new) tuples.
 # Order matters: some edits depend on previous ones.
 PROFILES = {
+    # ---------------- One UI 8.5 ----------------
+    "oneui8.5": [
+        #EDITSSSS
+    ],
     # ---------------- One UI 8 ----------------
     "oneui8": [
         # --- fs/exec.c ---
