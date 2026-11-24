@@ -345,9 +345,9 @@ runs:
         cp "$SUSFS_DIR/kernel_patches/50_add_susfs_in_gki-android13-5.15.patch" "$KERNEL_DIR" && echo "Copied SUSFS patch successfully"
 
         cd "$KERNEL_DIR"
-        echo "::group::Adjusting SUSFS patch for kernel compatibility..."
-        python3 "$GITHUB_ACTION_PATH/susfs-fix.py"
-        echo "::endgroup::"
+        # echo "::group::Adjusting SUSFS patch for kernel compatibility..."
+        # python3 "$GITHUB_ACTION_PATH/susfs-fix.py"
+        # echo "::endgroup::"
 
         if [ "${{ inputs['kernel-variant'] }}" == 'FINASU' ]; then
           echo "::group::FinaSU: pre-patch verification and normalization"
