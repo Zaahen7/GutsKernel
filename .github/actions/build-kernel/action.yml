@@ -42,12 +42,6 @@ runs:
       run: |
         echo "Removing -dirty from kernel uname"
         sed -i "s/printf '%s' -dirty/printf '%s' ''/g" "$KERNEL_DIR/scripts/setlocalversion"
-
-    - name: Stopppp to check if all is correct
-      shell: bash
-      run: |
-        echo "Workflow stopped intentionally."
-        exit 1
         
     - name: Build kernel
       shell: bash
