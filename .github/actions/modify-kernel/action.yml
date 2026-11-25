@@ -328,7 +328,7 @@ runs:
         set -euo pipefail
         
         case "${{ inputs['kernel-variant'] }}" in
-          KSU|BAKASU) KSU_DIR="$KERNEL_DIR/KernelSU" ;;
+          KSU|SUKISU|BAKASU) KSU_DIR="$KERNEL_DIR/KernelSU" ;;
           KSUN)       KSU_DIR="$KERNEL_DIR/KernelSU-Next" ;;
           FINASU)     KSU_DIR="$KERNEL_DIR/FinaSU" ;;
         esac
@@ -337,7 +337,12 @@ runs:
         [[ "${{ inputs['kernel-variant'] }}" == "BAKASU" ]] && VERSION_OFFSET=30700
         
         KSU_COMMIT_COUNT=$(git -C "$KSU_DIR" rev-list --count HEAD)
-        KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT))
+        
+        if [[ "${{ inputs['kernel-variant'] }}" == "SUKISU" ]]; then
+          KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT - 4000))
+        else
+          KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT))
+        fi
 
         echo "${{ inputs['kernel-variant'] }}_VERSION=$KSU_VERSION"
         echo "${{ inputs['kernel-variant'] }}_VERSION=$KSU_VERSION" >> "$GITHUB_ENV"
@@ -689,9 +694,10 @@ runs:
 
         # KernelSU variant
         case "$VARIANT" in
-          CLEAN)  KSU_VARIANT="None" ;;
+          CLEAN)  KSU_VARIANT="None"; KSU_VERSION="" ;;
           KSU)    KSU_VARIANT="KernelSU" ;;
           KSUN)   KSU_VARIANT="KernelSU-Next" ;;
+          SUKISU) KSU_VARIANT="SukiSU Nova"
           BAKASU) KSU_VARIANT="BakaSU" ;;
           FINASU) KSU_VARIANT="FinaSU" ;;
           *)
@@ -701,7 +707,6 @@ runs:
         esac
 
         # Get KernelSU version dynamically
-        KSU_VERSION=""
         if [[ "$VARIANT" != "CLEAN" ]]; then
             VERSION_VAR="${VARIANT}_VERSION"
             KSU_VERSION="${!VERSION_VAR:-}"
