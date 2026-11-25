@@ -178,7 +178,7 @@ jobs:
       - name: Prepare to build
         uses: ./.github/actions/build-setup
         with:
-          free-diskspace: ""
+          free-diskspace: "Guts"
      
       - name: Apply Kernel Modifications
         uses: ./.github/actions/modify-kernel
