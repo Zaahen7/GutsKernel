@@ -697,7 +697,7 @@ runs:
           CLEAN)  KSU_VARIANT="None"; KSU_VERSION="" ;;
           KSU)    KSU_VARIANT="KernelSU" ;;
           KSUN)   KSU_VARIANT="KernelSU-Next" ;;
-          SUKISU) KSU_VARIANT="SukiSU Nova"
+          SUKISU) KSU_VARIANT="SukiSU Nova" ;;
           BAKASU) KSU_VARIANT="BakaSU" ;;
           FINASU) KSU_VARIANT="FinaSU" ;;
           *)
