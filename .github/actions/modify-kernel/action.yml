@@ -70,9 +70,10 @@ runs:
         KSU_REPO: "https://github.com/tiann/KernelSU"
         KSUN_REPO: "https://github.com/KernelSU-Next/KernelSU-Next"
         KSUN_SUSFS_REPO: "https://github.com/pershoot/KernelSU-Next"
+        SUKISU_REPO: "https://github.com/SukiSU-Nova/SukiSU-Nova"
         BAKASU_REPO: "https://github.com/Baka-SU/BakaSU"
         FINASU_REPO: "https://github.com/LyraVoid/FinaSU"
-        # Custom KernelSU(tiann) commit
+        # Custom KernelSU commit (Works for all KSU variant used here)
         CUSTOM_KSU_COMMIT: ""
       run: | 
         set -euo pipefail
@@ -89,16 +90,22 @@ runs:
             if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
                 git clone "$KSU_REPO" "$KERNEL_DIR/KernelSU"
             fi
+
+            # Update repository
             cd "$KERNEL_DIR/KernelSU"
             git stash
-            git pull
-            
+            git fetch origin --tags
+            git checkout main
+            git pull --ff-only origin main
+
+            # Check Custom KSU Commit or get latest TAG commit SHA
             if [ -n "$CUSTOM_KSU_COMMIT" ]; then
                 KSU_SHA="$CUSTOM_KSU_COMMIT"
                 echo "Using custom KSU commit: $CUSTOM_KSU_COMMIT"
             else
                 KSU_TAG=$(git describe --abbrev=0 --tags)
                 KSU_SHA=$(git rev-list -n 1 "$KSU_TAG")
+                echo "KSU commit used: $KSU_SHA"
             fi
             git checkout "$KSU_SHA"
 
@@ -126,31 +133,35 @@ runs:
                 KSUN_REPO_URL="$KSUN_REPO"
                 KSUN_BRANCH="dev"
             fi
-        
-            # Get latest commit SHA
-            KSUN_SHA=$(latest_commit "$KSUN_REPO_URL" "$KSUN_BRANCH") || exit 1
-        
+
             # Clone repository
             if [ ! -d "$KERNEL_DIR/KernelSU-Next" ]; then
                 git clone "$KSUN_REPO_URL" "$KERNEL_DIR/KernelSU-Next"
             fi
-            
+
             # Update repository
             cd "$KERNEL_DIR/KernelSU-Next"
             git stash
             git fetch origin
-        
-            # Checkout selected commit
+
+            # Check Custom KSU Commit or get latest commit SHA
+            if [ -n "$CUSTOM_KSU_COMMIT" ]; then
+                KSUN_SHA="$CUSTOM_KSU_COMMIT"
+                echo "Using custom KSUN commit: $CUSTOM_KSU_COMMIT"
+            else
+                KSUN_SHA=$(latest_commit "$KSUN_REPO_URL" "$KSUN_BRANCH") || exit 1
+                echo "KSUN commit used: $KSUN_SHA"
+            fi
             git checkout "$KSUN_SHA"
-        
+
             # Create drivers symbolic link
             ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$KERNEL_DIR/KernelSU-Next/kernel")" "$DRIVER_DIR/kernelsu"
-        
+
             # Modify Drivers Makefile
             if ! grep -q "kernelsu" "$DRIVER_MAKEFILE"; then
                 printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> "$DRIVER_MAKEFILE"
             fi
-        
+
             # Modify Drivers Kconfig
             if ! grep -q 'source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"; then
                 sed -i '/endmenu/i\source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"
@@ -159,32 +170,75 @@ runs:
             echo "${{ inputs['kernel-variant'] }}_SHA=$KSUN_SHA" >> "$GITHUB_ENV"
             echo "✅ KernelSU-Next installed successfully."
             ;;
-          BAKASU)
-            # Get latest commit SHA
-            BAKASU_SHA=$(latest_commit "$BAKASU_REPO" "main") || exit 1
-          
-            # Clone BakaSU
+          SUKISU)
+            # Clone SUKISU
             if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
-                git clone "$BAKASU_REPO" "$KERNEL_DIR/KernelSU"
+                git clone "$SUKISU_REPO" "$KERNEL_DIR/KernelSU"
             fi
-          
-            cd "$KERNEL_DIR/KernelSU"
-          
+
             # Update repository
+            cd "$KERNEL_DIR/KernelSU"
             git stash
-            git fetch origin
-          
-            # Checkout selected commit
-            git checkout "$BAKASU_SHA"
-          
+            git fetch origin --tags
+            git checkout main
+            git pull --ff-only origin main
+
+            # Check Custom KSU Commit or get latest tag commit SHA
+            if [ -n "$CUSTOM_KSU_COMMIT" ]; then
+                SUKISU_SHA="$CUSTOM_KSU_COMMIT"
+                echo "Using custom SUKISU commit: $CUSTOM_KSU_COMMIT"
+            else
+                SUKISU_TAG=$(git describe --abbrev=0 --tags)
+                SUKISU_SHA=$(git rev-list -n 1 "$SUKISU_TAG")
+                echo "SUKISU commit used: $SUKISU_SHA"
+            fi
+            git checkout "$SUKISU_SHA"
+
             # Create drivers symbolic link
             ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$KERNEL_DIR/KernelSU/kernel")" "$DRIVER_DIR/kernelsu"
-          
+
             # Modify Drivers Makefile
             if ! grep -q "kernelsu" "$DRIVER_MAKEFILE"; then
                 printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> "$DRIVER_MAKEFILE"
             fi
-          
+
+            # Modify Drivers Kconfig
+            if ! grep -q 'source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"; then
+                sed -i '/endmenu/i\source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"
+            fi
+
+            echo "${{ inputs['kernel-variant'] }}_SHA=$SUKISU_SHA" >> "$GITHUB_ENV"
+            echo "✅ SukiSU installed successfully."
+            ;;
+          BAKASU)
+            # Clone BakaSU
+            if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
+                git clone "$BAKASU_REPO" "$KERNEL_DIR/KernelSU"
+            fi
+
+            # Update repository
+            cd "$KERNEL_DIR/KernelSU"
+            git stash
+            git fetch origin
+
+            # Check Custom KSU Commit or get latest commit SHA
+            if [ -n "$CUSTOM_KSU_COMMIT" ]; then
+                BAKASU_SHA="$CUSTOM_KSU_COMMIT"
+                echo "Using custom BAKASU commit: $CUSTOM_KSU_COMMIT"
+            else
+                BAKASU_SHA=$(latest_commit "$BAKASU_REPO" "main") || exit 1
+                echo "BAKASU commit used: $BAKASU_SHA"
+            fi
+            git checkout "$BAKASU_SHA"
+
+            # Create drivers symbolic link
+            ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$KERNEL_DIR/KernelSU/kernel")" "$DRIVER_DIR/kernelsu"
+
+            # Modify Drivers Makefile
+            if ! grep -q "kernelsu" "$DRIVER_MAKEFILE"; then
+                printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> "$DRIVER_MAKEFILE"
+            fi
+
             # Modify Drivers Kconfig
             if ! grep -q 'source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"; then
                 sed -i '/endmenu/i\source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"
@@ -198,30 +252,33 @@ runs:
             if [ ! -d "$KERNEL_DIR/FinaSU" ]; then
                 git clone "$FINASU_REPO" "$KERNEL_DIR/FinaSU"
             fi
-            
+
             # Update repository
             cd "$KERNEL_DIR/FinaSU"
             git stash
             git fetch origin --tags
-          
-            # Checkout master branch
             git checkout master
             git pull --ff-only origin master
-          
+
             # Get latest stable tag and SHA
-            FINASU_TAG=$(git describe --abbrev=0 --tags)
-            FINASU_SHA=$(git rev-list -n 1 "$FINASU_TAG")
-          
+            if [ -n "$CUSTOM_KSU_COMMIT" ]; then
+                FINASU_SHA="$CUSTOM_KSU_COMMIT"
+                echo "Using custom FINASU commit: $CUSTOM_KSU_COMMIT"
+            else
+                FINASU_TAG=$(git describe --abbrev=0 --tags)
+                FINASU_SHA=$(git rev-list -n 1 "$FINASU_TAG")
+                echo "FINASU commit used: $FINASU_SHA"
+            fi
             git checkout "$FINASU_SHA"
-          
+
             # Create drivers symbolic link
             ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$KERNEL_DIR/FinaSU/kernel")" "$DRIVER_DIR/kernelsu"
-          
+
             # Modify Drivers Makefile
             if ! grep -q "kernelsu" "$DRIVER_MAKEFILE"; then
                 printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> "$DRIVER_MAKEFILE"
             fi
-          
+
             # Modify Drivers Kconfig
             if ! grep -q 'source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"; then
                 sed -i '/endmenu/i\source "drivers/kernelsu/Kconfig"' "$DRIVER_KCONFIG"
