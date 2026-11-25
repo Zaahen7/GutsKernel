@@ -643,7 +643,8 @@ runs:
             ;;
         esac
 
-        # Get KernelSU version dynamically 
+        # Get KernelSU version dynamically
+        KSU_VERSION=""
         if [[ "$VARIANT" != "CLEAN" ]]; then
             VERSION_VAR="${VARIANT}_VERSION"
             KSU_VERSION="${!VERSION_VAR:-}"
