@@ -171,6 +171,12 @@ runs:
             echo "✅ KernelSU-Next installed successfully."
             ;;
           SUKISU)
+            if [ "${{ inputs['enable-susfs'] }}" == 'true' ]; then
+                SUKISU_BRANCH="builtin-new"
+            else
+                SUKISU_BRANCH="main"
+            fi
+          
             # Clone SUKISU
             if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
                 git clone "$SUKISU_REPO" "$KERNEL_DIR/KernelSU"
@@ -179,17 +185,14 @@ runs:
             # Update repository
             cd "$KERNEL_DIR/KernelSU"
             git stash
-            git fetch origin --tags
-            git checkout main
-            git pull --ff-only origin main
+            git fetch origin
 
-            # Check Custom KSU Commit or get latest tag commit SHA
+            # Check Custom KSU Commit or get latest commit SHA
             if [ -n "$CUSTOM_KSU_COMMIT" ]; then
                 SUKISU_SHA="$CUSTOM_KSU_COMMIT"
                 echo "Using custom SUKISU commit: $CUSTOM_KSU_COMMIT"
             else
-                SUKISU_TAG=$(git describe --abbrev=0 --tags)
-                SUKISU_SHA=$(git rev-list -n 1 "$SUKISU_TAG")
+                SUKISU_SHA=$(latest_commit "$SUKISU_REPO" "$SUKISU_BRANCH") || exit 1
                 echo "SUKISU commit used: $SUKISU_SHA"
             fi
             git checkout "$SUKISU_SHA"
