@@ -115,6 +115,9 @@ on:
           description: "EXPERIMENTAL battery tweak"
           type: boolean
           default: false
+
+        rekernel-support:
+          description: ""
           
         release-type:
             description: "Release type"
@@ -200,6 +203,7 @@ jobs:
           extended-tmpfs: ${{ inputs['ext-tmpfs'] }}
           vfs-support: ${{ inputs['vfs-support'] }}
           battery-tweak: ${{ inputs['battery-tweak'] }}
+          enable-rekernel: ${{ inputs['rekernel-support'] }}
 
       - name: Build Kernel
         uses: ./.github/actions/build-kernel
