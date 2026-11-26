@@ -171,12 +171,6 @@ runs:
             echo "✅ KernelSU-Next installed successfully."
             ;;
           SUKISU)
-            if [ "${{ inputs['enable-susfs'] }}" == 'true' ]; then
-                SUKISU_BRANCH="builtin"
-            else
-                SUKISU_BRANCH="main"
-            fi
-          
             # Clone SUKISU
             if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
                 git clone "$SUKISU_REPO" "$KERNEL_DIR/KernelSU"
@@ -192,7 +186,7 @@ runs:
                 SUKISU_SHA="$CUSTOM_KSU_COMMIT"
                 echo "Using custom SUKISU commit: $CUSTOM_KSU_COMMIT"
             else
-                SUKISU_SHA=$(latest_commit "$SUKISU_REPO" "$SUKISU_BRANCH") || exit 1
+                SUKISU_SHA=$(latest_commit "$SUKISU_REPO" "main") || exit 1
                 echo "SUKISU commit used: $SUKISU_SHA"
             fi
             git checkout "$SUKISU_SHA"
@@ -391,7 +385,7 @@ runs:
         # Checkout SUSFS commit
         git checkout "$SUSFS_SHA"
 
-        if [ "${{ inputs['kernel-variant'] }}" == 'KSU' ]; then
+        if [ "${{ inputs['kernel-variant'] }}" == 'KSU' ] || [ "${{ inputs['kernel-variant'] }}" == 'SUKISU' ]; then
             cp "$SUSFS_DIR/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" "$KERNEL_DIR/KernelSU"
             cd "$KERNEL_DIR/KernelSU"
             KSU_PATCH_STATUS=0
