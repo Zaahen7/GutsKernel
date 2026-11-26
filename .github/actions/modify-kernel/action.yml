@@ -22,9 +22,6 @@ inputs:
     description: "Add VFS support for selected MetaModule"
   battery-tweak:
     description: "EXPERIMENTAL battery tweak"
-  enable-rekernel:
-    description: "Enable Re-Kernel (built-in binder/network notifier for app freezers)"
-    default: "false"
     
 runs:
   using: composite
@@ -675,102 +672,8 @@ runs:
         
         echo "NOMOUNT_SHA=$NOMOUNT_SHA" >> "$GITHUB_ENV"
         echo "✅ NoMount installed successfully."
-        
-    - name: Enable Re-Kernel
-      if: ${{ inputs['enable-rekernel'] == 'true' }}
-      shell: bash
-      env:
-        REKERNEL_DIR: "${{ github.workspace }}/Re-Kernel"
-        REKERNEL_REPO: "https://github.com/Sakion-Team/Re-Kernel"
-        # Custom Re-Kernel commit (empty = latest commit of the default branch)
-        CUSTOM_REKERNEL_COMMIT: ""
-      run: |
-        set -euo pipefail
 
-        DRIVER_DIR="$KERNEL_DIR/drivers"
-        DRIVER_MAKEFILE="$DRIVER_DIR/Makefile"
-        DRIVER_KCONFIG="$DRIVER_DIR/Kconfig"
-        REKERNEL_DEST="$DRIVER_DIR/rekernel"
-
-        # Clone repository
-        if [ ! -d "$REKERNEL_DIR" ]; then
-            git clone "$REKERNEL_REPO" "$REKERNEL_DIR"
-        fi
-
-        # Update repository and select commit
-        cd "$REKERNEL_DIR"
-        git fetch origin
-        if [ -n "$CUSTOM_REKERNEL_COMMIT" ]; then
-            REKERNEL_SHA="$CUSTOM_REKERNEL_COMMIT"
-            echo "Using custom Re-Kernel commit: $REKERNEL_SHA"
-        else
-            REKERNEL_SHA=$(git rev-parse origin/HEAD)
-            echo "Re-Kernel commit used: $REKERNEL_SHA"
-        fi
-        git checkout "$REKERNEL_SHA"
-
-        # Copy the driver source into the kernel tree
-        if [ ! -d "$REKERNEL_DIR/LKM-Source" ]; then
-            echo "❌ LKM-Source not found in Re-Kernel repo (layout changed?)"
-            exit 1
-        fi
-        rm -rf "$REKERNEL_DEST"
-        mkdir -p "$REKERNEL_DEST"
-        cp -a "$REKERNEL_DIR/LKM-Source/." "$REKERNEL_DEST/"
-
-        # Turn the loadable module into a built-in driver
-        sed -i 's/^obj-m[[:space:]]*[:+]\?=[[:space:]]*rekernel\.o/obj-$(CONFIG_REKERNEL) += rekernel.o/' "$REKERNEL_DEST/Makefile"
-        if ! grep -qF 'obj-$(CONFIG_REKERNEL)' "$REKERNEL_DEST/Makefile"; then
-            echo "❌ Could not convert Re-Kernel Makefile to built-in"
-            exit 1
-        fi
-        grep -qF 'ccflags-$(CONFIG_REKERNEL_LEGACY_NETLINK)' "$REKERNEL_DEST/Makefile" || \
-            echo 'ccflags-$(CONFIG_REKERNEL_LEGACY_NETLINK) += -DLEGACY_NETLINK' >> "$REKERNEL_DEST/Makefile"
-
-        sed -i '/^[[:space:]]*depends on MODULES[[:space:]]*$/d' "$REKERNEL_DEST/Kconfig"
-        if ! grep -q '^config REKERNEL$' "$REKERNEL_DEST/Kconfig"; then
-            echo "❌ config REKERNEL not declared in Re-Kernel Kconfig"
-            exit 1
-        fi
-
-        # Hook it into drivers/Kconfig and drivers/Makefile
-        if ! grep -q 'source "drivers/rekernel/Kconfig"' "$DRIVER_KCONFIG"; then
-            sed -i '/^endmenu$/i\source "drivers/rekernel/Kconfig"' "$DRIVER_KCONFIG"
-        fi
-        if ! grep -q 'rekernel/' "$DRIVER_MAKEFILE"; then
-            printf '\nobj-$(CONFIG_REKERNEL) += rekernel/\n' >> "$DRIVER_MAKEFILE"
-        fi
-
-        # In-tree build fixes for the binder hook
-        BINDER_SRC=$(grep -rl 'binder_internal.h' "$REKERNEL_DEST" --include='*.c' || true)
-        if [ -z "$BINDER_SRC" ]; then
-            echo "❌ No source including binder_internal.h found in Re-Kernel"
-            exit 1
-        fi
-        for f in $BINDER_SRC; do
-            sed -i 's|#include <\.\./android/binder_internal\.h>|#include "../android/binder_internal.h"|' "$f"
-            grep -q 'linux/seq_file.h' "$f" || \
-                sed -i '/#include <linux\/kprobes\.h>/a #include <linux/seq_file.h>' "$f"
-        done
-
-        # Defconfig (CONFIG_KPROBES is required by the binder hook)
-        for config in \
-          CONFIG_REKERNEL \
-          CONFIG_REKERNEL_NETWORK \
-          CONFIG_KPROBES
-        do
-          if "$KERNEL_DIR/scripts/config" --file "$DEFCONFIG" --enable "$config"; then
-            echo "✅ Enabled $config"
-          else
-            echo "❌ Failed: $config"
-            exit 1
-          fi
-        done
-
-        echo "REKERNEL_SHA=$REKERNEL_SHA" >> "$GITHUB_ENV"
-        echo "✅ Re-Kernel integrated successfully."
-
-    - name: Apply EXPERIMENTAL battery tweak
+    - name: Apply battery tweak
       if: ${{ inputs['battery-tweak'] == 'true' }}
       shell: bash
       run: |
@@ -834,9 +737,6 @@ runs:
         BTWEAK_STATUS="NO"
         [[ "${{ inputs['battery-tweak'] }}" == "true" ]] && BTWEAK_STATUS="YES"
 
-        REKERNEL_STATUS="NO"
-        [[ "${{ inputs['enable-rekernel'] }}" == "true" ]] && REKERNEL_STATUS="YES"
-
         VFS_SUPPORT="Disabled"
         [[ "$VARIANT" != "CLEAN" && "${{ inputs['vfs-support'] }}" != "Disabled" ]] && VFS_SUPPORT="${{ inputs['vfs-support'] }}"
 
@@ -870,8 +770,7 @@ runs:
         Extended TMPFS: $EXT_TMPFS_STATUS
         VFS Support: $VFS_SUPPORT
         EXPERIMENTAL Battery Tweak: $BTWEAK_STATUS
-        Re-Kernel: $REKERNEL_STATUS
-
+        
         ========  GIT HASHES  ========
         EOF
 
@@ -882,7 +781,7 @@ runs:
             SHA_VARS+=("${VARIANT}_SHA")
         fi
         
-        SHA_VARS+=(SUSFS_SHA BBG_SHA HYBRIDMOUNT_SHA NOMOUNT_SHA REKERNEL_SHA)
+        SHA_VARS+=(SUSFS_SHA BBG_SHA HYBRIDMOUNT_SHA NOMOUNT_SHA)
         
         for var in "${SHA_VARS[@]}"; do
             value="${!var:-}"
