@@ -117,7 +117,7 @@ on:
           default: false
 
         rekernel-support:
-          description: ""
+          description: "Enable Re-Kernel builtin support"
           
         release-type:
             description: "Release type"
