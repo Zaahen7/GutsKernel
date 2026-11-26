@@ -342,6 +342,7 @@ runs:
         KSU_COMMIT_COUNT=$(git -C "$KSU_DIR" rev-list --count HEAD)
         
         if [[ "${{ inputs['kernel-variant'] }}" == "SUKISU" ]]; then
+          KSU_COMMIT_COUNT=$(git rev-list --count refs/remotes/origin/main))
           KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT + 996))
         else
           KSU_VERSION=$((VERSION_OFFSET + KSU_COMMIT_COUNT))
