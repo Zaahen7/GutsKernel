@@ -70,7 +70,7 @@ runs:
         KSU_REPO: "https://github.com/tiann/KernelSU"
         KSUN_REPO: "https://github.com/KernelSU-Next/KernelSU-Next"
         KSUN_SUSFS_REPO: "https://github.com/pershoot/KernelSU-Next"
-        SUKISU_REPO: "https://github.com/SukiSU-Nova/SukiSU-Nova"
+        SUKISU_REPO: "https://git.zako.shirkneko.top:20004/shirkneko/SukiSU"
         BAKASU_REPO: "https://github.com/Baka-SU/BakaSU"
         FINASU_REPO: "https://github.com/LyraVoid/FinaSU"
         # Custom KernelSU commit (Works for all KSU variant used here)
@@ -171,6 +171,12 @@ runs:
             echo "✅ KernelSU-Next installed successfully."
             ;;
           SUKISU)
+            if [ "${{ inputs['enable-susfs'] }}" == 'true' ]; then
+                SUKISU_BRANCH="builtin"
+            else
+                SUKISU_BRANCH="main"
+            fi
+          
             # Clone SUKISU
             if [ ! -d "$KERNEL_DIR/KernelSU" ]; then
                 git clone "$SUKISU_REPO" "$KERNEL_DIR/KernelSU"
@@ -186,7 +192,7 @@ runs:
                 SUKISU_SHA="$CUSTOM_KSU_COMMIT"
                 echo "Using custom SUKISU commit: $CUSTOM_KSU_COMMIT"
             else
-                SUKISU_SHA=$(latest_commit "$SUKISU_REPO" "main") || exit 1
+                SUKISU_SHA=$(latest_commit "$SUKISU_REPO" $SUKISU_BRANCH) || exit 1
                 echo "SUKISU commit used: $SUKISU_SHA"
             fi
             git checkout "$SUKISU_SHA"
@@ -385,7 +391,7 @@ runs:
         # Checkout SUSFS commit
         git checkout "$SUSFS_SHA"
 
-        if [ "${{ inputs['kernel-variant'] }}" == 'KSU' ] || [ "${{ inputs['kernel-variant'] }}" == 'SUKISU' ]; then
+        if [ "${{ inputs['kernel-variant'] }}" == 'KSU' ]; then
             cp "$SUSFS_DIR/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" "$KERNEL_DIR/KernelSU"
             cd "$KERNEL_DIR/KernelSU"
             KSU_PATCH_STATUS=0
