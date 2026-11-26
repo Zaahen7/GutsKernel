@@ -101,6 +101,16 @@ on:
           description: "Add Mountify Support"
           type: boolean
           default: true
+
+        battery-tweak:
+          description: "Battery tweak"
+          type: boolean
+          default: true
+
+        rekernel-support:
+          description: "Enable Re-Kernel builtin support"
+          type: boolean
+          default: false
           
         vfs-support:
           description: "Add VFS support for selected MetaModule"
@@ -109,15 +119,7 @@ on:
             - Disabled
             - NoMount
             - Hybrid-Mount
-          default: Hybrid-Mount
-          
-        battery-tweak:
-          description: "EXPERIMENTAL battery tweak"
-          type: boolean
-          default: false
-
-        rekernel-support:
-          description: "Enable Re-Kernel builtin support"
+          default: NoMount
           
         release-type:
             description: "Release type"
