@@ -106,11 +106,6 @@ on:
           description: "Battery tweak"
           type: boolean
           default: true
-
-        rekernel-support:
-          description: "Enable Re-Kernel builtin support"
-          type: boolean
-          default: false
           
         vfs-support:
           description: "Add VFS support for selected MetaModule"
@@ -205,7 +200,6 @@ jobs:
           extended-tmpfs: ${{ inputs['ext-tmpfs'] }}
           vfs-support: ${{ inputs['vfs-support'] }}
           battery-tweak: ${{ inputs['battery-tweak'] }}
-          enable-rekernel: ${{ inputs['rekernel-support'] }}
 
       - name: Build Kernel
         uses: ./.github/actions/build-kernel
