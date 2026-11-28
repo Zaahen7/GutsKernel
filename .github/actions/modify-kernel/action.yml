@@ -324,7 +324,7 @@ runs:
         set -euo pipefail
         python3 "$GITHUB_ACTION_PATH/extract-finasu-manager-cert.py" --ksu-dir "$KERNEL_DIR/FinaSU"
         
-    - name: Calculate KernelSU Version
+    - name: Calculate ${{ inputs['kernel-variant'] }} Version
       if: ${{ inputs['kernel-variant'] != 'CLEAN' }}
       shell: bash
       run: |
